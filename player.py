@@ -8,7 +8,7 @@ class Player(ABC):
         self.player_mask = player_mask
     
     @abstractmethod
-    def get_move(self, game_state, move_timeout):
+    def get_move(self, game_state):
         pass 
 
 class HumanPlayer(Player):
@@ -33,7 +33,7 @@ class HumanPlayer(Player):
                         return (row, col)  # Return the selected move
 
 class AIPlayer(Player):
-    def get_move(self, game_state, move_timeout=2):
+    def get_move(self, game_state, move_timeout):
         # Check for casual move first
         move = game_state.get_casual_move()   
         if move:

@@ -30,11 +30,17 @@ class TicTacToe:
         available_positions = list(zip(zero_indices[0], zero_indices[1]))
         return available_positions
 
-    def is_potential_winning_segment(self, segment, player):
-        """ Check if a segment of marks has (n-1) consecutive marks of the same player with open ends """
-        if segment.count(player) == self.win_cond - 1 and segment.count(-player) == 2:
-            return True
-        return False
+    def is_potential_segment(self, segment, player):
+        """ Check if a segment of marks has (n-2) consecutive marks of the same player with open ends """
+        mid = len(segment) // 2
+
+        # if opponent already played here, the segment absolutely gets useless
+        if segment.count(-player) > 0:
+            return False, None
+        
+        if segment.count(player) == self.win_cond - 2 and segment[mid-1] == player and segment[mid+1] == player:
+            return True, [i for i, x in enumerate(segment) if x == 0]
+        return False, None
     
     def get_casual_move(self):
         # casual move that player should do when in certain states
@@ -50,102 +56,114 @@ class TicTacToe:
             for i in range(self._n):
                 for j in range(self._n - (self.win_cond - 1)):
                     if all(board_1[i][j + k] == self.current_turn for k in range(self.win_cond)):
-                        print("HERE_1")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range(self._n):
                     if all(board_1[i + k][j] == self.current_turn for k in range(self.win_cond)):
-                        print("HERE_1")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range(self._n - (self.win_cond - 1)):
                     if all(board_1[i + k][j + k] == self.current_turn for k in range(self.win_cond)):
-                        print("HERE_1")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range((self.win_cond - 1), self._n):
                     if all(board_1[i + k][j - k] == self.current_turn for k in range(self.win_cond)):
-                        print("HERE_1")
                         return move 
                     
             # check for move to stop opponent from winning next turn
             for i in range(self._n):
                 for j in range(self._n - (self.win_cond - 1)):
                     if all(board_2[i][j + k] == -self.current_turn for k in range(self.win_cond)):
-                        print("HERE_2")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range(self._n):
                     if all(board_2[i + k][j] == -self.current_turn for k in range(self.win_cond)):
-                        print("HERE_2")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range(self._n - (self.win_cond - 1)):
                     if all(board_2[i + k][j + k] == -self.current_turn for k in range(self.win_cond)):
-                        print("HERE_2")
                         return move
 
             for i in range(self._n - (self.win_cond - 1)):
                 for j in range((self.win_cond - 1), self._n):
                     if all(board_2[i + k][j - k] == -self.current_turn for k in range(self.win_cond)):
-                        print("HERE_2")
                         return move 
-            
-            if self._n > self.win_cond:
-                # check for move that leads current player to potential winning
-                # or stop opponent to play moves leading to potential winning
-                for i in range(self._n):
-                    for j in range(self._n - self.win_cond):
-                        row_segment_1 = [board_1[i][j + k] for k in range(self.win_cond+1)]  
-                        row_segment_2 = [board_2[i][j + k] for k in range(self.win_cond+1)]  
-                        if self.is_potential_winning_segment(row_segment_1, self.current_turn):
-                            print("HERE_3")
-                            return i, j + row_segment_1.index(0)
-                        if self.is_potential_winning_segment(row_segment_2, -self.current_turn):
-                            print("HERE_3")
-                            return i, j + row_segment_2.index(0)
-
-                for i in range(self._n - self.win_cond):
-                    for j in range(self._n):
-                        col_segment_1 = [board_1[i + k][j] for k in range(self.win_cond+1)]
-                        col_segment_2 = [board_2[i + k][j] for k in range(self.win_cond+1)]
-                        if self.is_potential_winning_segment(col_segment_1, self.current_turn):
-                            print("HERE_3")
-                            return i + col_segment_1.index(0), j
-                        if self.is_potential_winning_segment(col_segment_2, -self.current_turn):
-                            print("HERE_3")
-                            return i + col_segment_2.index(0), j
-
-                for i in range(self._n - self.win_cond):
-                    for j in range(self._n - self.win_cond):
-                        diag_segment_1 = [board_1[i + k][j + k] for k in range(self.win_cond+1)]
-                        diag_segment_2 = [board_2[i + k][j + k] for k in range(self.win_cond+1)]
-                        if self.is_potential_winning_segment(diag_segment_1, self.current_turn):
-                            print("HERE_3")
-                            return i + diag_segment_1.index(0), j + diag_segment_1.index(0)
-                        if self.is_potential_winning_segment(diag_segment_2, -self.current_turn):
-                            print("HERE_3")
-                            return i + diag_segment_2.index(0), j + diag_segment_2.index(0)
-
-                for i in range(self._n - self.win_cond):
-                    for j in range(self.win_cond, self._n):
-                        diag_segment_1 = [board_1[i + k][j - k] for k in range(self.win_cond+1)]
-                        diag_segment_1 = [board_2[i + k][j - k] for k in range(self.win_cond+1)]
-                        if self.is_potential_winning_segment(diag_segment_1, self.current_turn):
-                            print("HERE_3")
-                            return i + diag_segment_1.index(0), j - diag_segment_1.index(0)
-                        if self.is_potential_winning_segment(diag_segment_2, -self.current_turn):
-                            print("HERE_3")
-                            return i + diag_segment_2.index(0), j - diag_segment_2.index(0)
-                
+             
             # Reset board
             board_1[move[0]][move[1]] = 0
             board_2[move[0]][move[1]] = 0
+        
+        if self._n > self.win_cond:
+            # check for moves that leads current player to potential winning
+            # or stop opponent to play moves leading to potential winning
+            potential_wins = []
+            potential_loses = []
+            for i in range(self._n):
+                for j in range(self._n - (self.win_cond - 1)):
+                    row_segment = [self.board[i][j + k] for k in range(self.win_cond)]
+                    is_potential, positions = self.is_potential_segment(row_segment, self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_wins.append((i, j + pos))
+                    is_potential, positions = self.is_potential_segment(row_segment, -self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_loses.append((i, j + pos))
+
+            for i in range(self._n - (self.win_cond - 1)):
+                for j in range(self._n):
+                    col_segment = [self.board[i + k][j] for k in range(self.win_cond)]
+                    is_potential, positions = self.is_potential_segment(col_segment, self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_wins.append((i + pos, j))
+                    is_potential, positions = self.is_potential_segment(col_segment, -self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_loses.append((i + pos, j))
+
+            for i in range(self._n - (self.win_cond - 1)):
+                for j in range(self._n - (self.win_cond - 1)):
+                    diag_segment = [self.board[i + k][j + k] for k in range(self.win_cond)]
+                    is_potential, positions = self.is_potential_segment(diag_segment, self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_wins.append((i + pos, j + pos))
+                    is_potential, positions = self.is_potential_segment(diag_segment, -self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_loses.append((i + pos, j + pos))
+
+            for i in range(self._n - (self.win_cond - 1)):
+                for j in range((self.win_cond - 1), self._n):
+                    diag_segment = [self.board[i + k][j - k] for k in range(self.win_cond)]
+                    is_potential, positions = self.is_potential_segment(diag_segment, self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_wins.append((i + pos, j - pos))
+                    is_potential, positions = self.is_potential_segment(diag_segment, -self.current_turn)
+                    if is_potential:
+                        for pos in positions:
+                            potential_loses.append((i + pos, j - pos))
+            
+            dup = set(potential_wins).intersection((potential_loses))
+            if len(dup) > 0:
+                print("HERE_3.1:", end=" ")
+                print(dup)
+                return dup[0]
+            if len(potential_wins) > 0:
+                print("HERE_3.2:", end=" ")
+                print(potential_wins)
+                return potential_wins[0]
+            if len(potential_loses) > 0:
+                print("HERE_3.3:", end=" ")
+                print(potential_loses)
+                return potential_loses[0]
 
         return None
 

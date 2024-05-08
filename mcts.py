@@ -73,14 +73,14 @@ class MonteCarloTreeSearchNode():
                 current_node = current_node.best_child()
         return current_node
 
-    def best_action(self, timeout=2):
-        simulation_no = 1000
+    def best_action(self, iteration=10000, timeout=15):
+        num_simulation = iteration
     
         start = time.time()
-        while time.time() - start < timeout and simulation_no > 0: 
+        while time.time() - start < timeout and num_simulation > 0: 
             v = self._tree_policy()
             reward = v.rollout()
             v.backpropagate(reward)
-            simulation_no -= 1
+            num_simulation -= 1
             
         return self.best_child(c_param=0.1)
