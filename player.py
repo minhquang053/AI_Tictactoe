@@ -8,7 +8,7 @@ class Player(ABC):
         self.player_mask = player_mask
     
     @abstractmethod
-    def get_move(self, game_state):
+    def get_move(self, game_state, move_timeout):
         pass 
 
 class HumanPlayer(Player):
@@ -16,7 +16,10 @@ class HumanPlayer(Player):
         super().__init__(player_mask)
         self.screen_size = screen_size
 
-    def get_move(self, game_state):
+    def get_move(self, game_state, move_timeout=-1):
+        # won't be needed
+        move_timeout
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -30,7 +33,7 @@ class HumanPlayer(Player):
                         return (row, col)  # Return the selected move
 
 class AIPlayer(Player):
-    def get_move(self, game_state):
+    def get_move(self, game_state, move_timeout=2):
         # Check for casual move first
         move = game_state.get_casual_move()   
         if move:
@@ -38,5 +41,5 @@ class AIPlayer(Player):
 
         # MCTS 
         root = MonteCarloTreeSearchNode(state=game_state, ai_mask=self.player_mask)
-        selected_node = root.best_action()
+        selected_node = root.best_action(timeout=move_timeout)
         return selected_node.parent_action
