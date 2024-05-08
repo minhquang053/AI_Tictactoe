@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from mcts import MonteCarloTreeSearchNode
-import numpy as np
+import pygame
+import sys
 
 class Player(ABC):
     def __init__(self, player_mask):
@@ -11,8 +12,22 @@ class Player(ABC):
         pass 
 
 class HumanPlayer(Player):
+    def __init__(self, player_mask, screen_size=400):
+        super().__init__(player_mask)
+        self.screen_size = screen_size
+
     def get_move(self, game_state):
-        pass
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and game_state.current_turn == self.player_mask:
+                    mouse_pos = pygame.mouse.get_pos()
+                    row = mouse_pos[1] // (self.screen_size // game_state._n)
+                    col = mouse_pos[0] // (self.screen_size // game_state._n)
+                    if 0 <= row < game_state._n and 0 <= col < game_state._n and game_state.board[row][col] == 0:
+                        return (row, col)  # Return the selected move
 
 class AIPlayer(Player):
     def get_move(self, game_state):
