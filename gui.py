@@ -102,6 +102,7 @@ def main():
                 player = player_2
                 
             action = player.get_move(game)
+            print(f"{game.current_turn}: {action}")
             game.move(action)
             screen.fill(WHITE)
             draw_board(screen, game)

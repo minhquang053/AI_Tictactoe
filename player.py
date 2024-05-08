@@ -15,13 +15,10 @@ class HumanPlayer(Player):
         pass
 
 class AIPlayer(Player):
-    def check_casual_move(self, board):
-        return False, None
-
     def get_move(self, game_state):
         # Check for casual move first
-        existed, move = self.check_casual_move(game_state.board)        
-        if existed:
+        move = game_state.get_casual_move()   
+        if move:
             return move
 
         # MCTS 
