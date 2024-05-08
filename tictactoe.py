@@ -1,4 +1,3 @@
-import random
 import copy
 import numpy as np
 
@@ -28,6 +27,18 @@ class TicTacToe:
         np_board = np.array(self.board)
         zero_indices = np.where(np_board == 0)
         available_positions = list(zip(zero_indices[0], zero_indices[1]))
+
+        # Calculate center position
+        center_row = self._n // 2  # Assuming self._n is the row length (equal to col length)
+        center_col = self._n // 2
+        
+        # Sort positions based on distance from the center
+        def distance_from_center(pos):
+            row, col = pos
+            return abs(row - center_row) + abs(col - center_col)  # Manhattan distance
+
+        available_positions.sort(key=distance_from_center)
+
         return available_positions
 
     def is_potential_segment(self, segment, player):
@@ -155,7 +166,7 @@ class TicTacToe:
             if len(dup) > 0:
                 print("HERE_3.1:", end=" ")
                 print(dup)
-                return dup[0]
+                return next(iter(dup))
             if len(potential_wins) > 0:
                 print("HERE_3.2:", end=" ")
                 print(potential_wins)
