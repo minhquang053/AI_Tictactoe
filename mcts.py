@@ -29,7 +29,7 @@ class MonteCarloTreeSearchNode():
         return self._number_of_visits
     
     def expand(self):
-        action = self._untried_actions.pop()
+        action = self._untried_actions.pop(0)
         next_state = self.state.simulate_move(action)
         child_node = MonteCarloTreeSearchNode(next_state, self.ai_mask, parent=self, parent_action=action)
         self.children.append(child_node)
