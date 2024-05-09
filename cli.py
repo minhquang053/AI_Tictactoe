@@ -1,6 +1,8 @@
 from tictactoe import TicTacToe
 from player import AIPlayer
 
+MOVE_TIMEOUT = 2
+
 def main():
     game = TicTacToe(n=3, winning_condition=3)
     player_1 = AIPlayer(1)
@@ -13,7 +15,7 @@ def main():
         else:
             player = player_2
         
-        action = player.get_move(game)
+        action = player.get_move(game, MOVE_TIMEOUT)
         game.move(action)
         game.print_board()
 

@@ -17,7 +17,7 @@ class MonteCarloTreeSearchNode():
         return
 
     def untried_actions(self):
-        self._untried_actions = self.state.get_legal_actions()
+        self._untried_actions = self.state.get_near_center_legal_actions()
         return self._untried_actions
     
     def q(self):
@@ -40,12 +40,17 @@ class MonteCarloTreeSearchNode():
 
     def rollout(self):
         current_rollout_state = self.state
+        threshold_random = int((self.state._n ** 2) * 0.5)
 
         while not current_rollout_state.check_game_over()[0]:
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
+            if len(possible_moves) < threshold_random:
+                casual_move = current_rollout_state.get_casual_move()
+                if casual_move:
+                    action = casual_move
             current_rollout_state = current_rollout_state.simulate_move(action)
-            
+                 
         return current_rollout_state.game_result(self.ai_mask)
 
     def backpropagate(self, result):
@@ -73,7 +78,7 @@ class MonteCarloTreeSearchNode():
                 current_node = current_node.best_child()
         return current_node
 
-    def best_action(self, iteration=10000, timeout=15):
+    def best_action(self, iteration=800, timeout=15):
         num_simulation = iteration
     
         start = time.time()
@@ -82,5 +87,6 @@ class MonteCarloTreeSearchNode():
             reward = v.rollout()
             v.backpropagate(reward)
             num_simulation -= 1
-            
-        return self.best_child(c_param=0.1)
+
+        print(f"num simulation: {iteration - num_simulation}")
+        return self.best_child(c_param=1.4)

@@ -1,5 +1,7 @@
-import pygame
-import pygame_menu
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
+    import pygame_menu
 import sys
 from tictactoe import TicTacToe
 from player import AIPlayer, HumanPlayer
@@ -52,51 +54,53 @@ def draw_board(screen, game):
                                    SQUARE_SIZE // 2 - LINE_WIDTH + 1, LINE_WIDTH)
                 
 def start_game(screen):
-    print(PLAYER_1, PLAYER_2)
     def game_loop(screen):
-        print("HERE")
-        game = TicTacToe(n=N, winning_condition=5)
-        player_1 = HumanPlayer(1) if PLAYER_1 == "Human" else AIPlayer(1)
-        player_2 = HumanPlayer(-1) if PLAYER_2 == "Human" else AIPlayer(-1)
-        screen.fill(WHITE)
-        draw_board(screen, game)
-        pygame.display.flip()
+        restart = True
+        while restart:
+            game = TicTacToe(n=N, winning_condition=5)
+            player_1 = HumanPlayer(1) if PLAYER_1 == "Human" else AIPlayer(1)
+            player_2 = HumanPlayer(-1) if PLAYER_2 == "Human" else AIPlayer(-1)
+            screen.fill(WHITE)
+            draw_board(screen, game)
+            pygame.display.flip()
 
-        clock = pygame.time.Clock()
-        running = True
-        
-        while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-        
-            if not game.check_game_over()[0]:
-                if game.current_turn == player_1.player_mask:
-                    action = player_1.get_move(game, MOVE_TIMEOUT)
+            clock = pygame.time.Clock()
+            running = True
+            
+            while running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+            
+                if not game.check_game_over()[0]:
+                    if game.current_turn == player_1.player_mask:
+                        action = player_1.get_move(game, MOVE_TIMEOUT)
+                    else:
+                        action = player_2.get_move(game, MOVE_TIMEOUT)
+                    
+                    game.move(action)
+                        
+                    screen.fill(WHITE)
+                    draw_board(screen, game)
+                    pygame.display.flip()
+                    clock.tick(30)
                 else:
-                    action = player_2.get_move(game, MOVE_TIMEOUT)
-                
-                print(f"{game.current_turn}: {action}")
-                game.move(action)
-                screen.fill(WHITE)
-                draw_board(screen, game)
-                pygame.display.flip()
-            else:
-                winner_mask = game.check_game_over()[1]
-                if winner_mask > 0:
-                    winner = "Player 1"
-                elif winner_mask < 0:
-                    winner = "Player 2"
-                else:
-                    winner = "Tie"
+                    winner_mask = game.check_game_over()[1]
+                    if winner_mask > 0:
+                        winner = "Player 1"
+                    elif winner_mask < 0:
+                        winner = "Player 2"
+                    else:
+                        winner = "Tie"
 
-                show_game_over_dialog(screen, winner)
-                break
+                    restart = show_game_over_dialog(screen, winner)
+                    break
     
     return game_loop
 
 def show_game_over_dialog(screen, winner):
+    global PLAYER_1, PLAYER_2
     font = pygame.font.Font(None, 36)
     if winner == "Tie":
         text_surface = font.render(f"Tie", True, BLACK)
@@ -104,18 +108,18 @@ def show_game_over_dialog(screen, winner):
         text_surface = font.render(f"{winner} wins!", True, BLACK)
 
     # Create a background rectangle
-    background_rect = pygame.Rect(50, 120, SCREEN_WIDTH - 100, 100)
+    background_rect = pygame.Rect(50, 10, SCREEN_WIDTH - 100, 40)
     pygame.draw.rect(screen, WHITE, background_rect)  # Draw a white background behind the text
     pygame.draw.rect(screen, GREY, background_rect, 3)  # Draw a black border
-    screen.blit(text_surface, (120, 160))  # Draw the text with an offset for positioning
+    screen.blit(text_surface, (120, 18))  # Draw the text with an offset for positioning
 
     # Display options
     font = pygame.font.Font(None, 24)
     continue_text = font.render("Continue", True, BLACK)
     main_menu_text = font.render("Go to main menu", True, BLACK)
 
-    continue_button = pygame.Rect(50, 300, 100, 50)
-    main_menu_button = pygame.Rect(200, 300, 150, 50)
+    continue_button = pygame.Rect(50, 340, 100, 50)
+    main_menu_button = pygame.Rect(200, 340, 150, 50)
 
     pygame.draw.rect(screen, GREEN, continue_button)
     pygame.draw.rect(screen, GREY, continue_button, 3)  # Draw a black border
@@ -140,8 +144,10 @@ def show_game_over_dialog(screen, winner):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = event.pos
                 if continue_button.collidepoint(mouse_pos):
-                    running = False  # Continue with current game
+                    return True
                 elif main_menu_button.collidepoint(mouse_pos):
+                    PLAYER_1 = "Human"
+                    PLAYER_2 = "AI"
                     return False  # Return to main menu
 
 def main():
