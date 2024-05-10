@@ -3,6 +3,7 @@ with contextlib.redirect_stdout(None):
     import pygame
     import pygame_menu
 import sys
+import time
 from tictactoe import TicTacToe
 from player import AIPlayer, HumanPlayer
 
@@ -84,7 +85,7 @@ def start_game(screen):
                     screen.fill(WHITE)
                     draw_board(screen, game)
                     pygame.display.flip()
-                    clock.tick(30)
+                    clock.tick(5/MOVE_TIMEOUT)
                 else:
                     winner_mask = game.check_game_over()[1]
                     if winner_mask > 0:

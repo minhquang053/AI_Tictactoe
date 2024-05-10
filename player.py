@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from mcts import MonteCarloTreeSearchNode
 import pygame
 import sys
+import time
 
 class Player(ABC):
     def __init__(self, player_mask):
@@ -33,13 +34,22 @@ class HumanPlayer(Player):
                         return (row, col)  # Return the selected move
 
 class AIPlayer(Player):
+    def visual_test(self, game_state, num_sim):
+        root = MonteCarloTreeSearchNode(state=game_state, ai_mask=self.player_mask)
+        selected_node = root.best_action(iteration=num_sim, timeout=10)
+        return root, selected_node.parent_action
+
     def get_move(self, game_state, move_timeout):
         # Check for casual move first
+        start = time.time()
         move = game_state.get_casual_move()   
         if move:
             return move
 
+        time_left = move_timeout - (time.time() - start) - 0.01
+        
         # MCTS 
         root = MonteCarloTreeSearchNode(state=game_state, ai_mask=self.player_mask)
-        selected_node = root.best_action(timeout=move_timeout)
+        selected_node = root.best_action(timeout=time_left)
+        print(f"time taken: {time.time() - start}s")
         return selected_node.parent_action

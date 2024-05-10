@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import math
 from collections import defaultdict
 
 class MonteCarloTreeSearchNode():
@@ -14,7 +15,6 @@ class MonteCarloTreeSearchNode():
         self._results[1] = 0
         self._results[-1] = 0
         self._untried_actions = self.untried_actions()
-        return
 
     def untried_actions(self):
         self._untried_actions = self.state.get_near_center_legal_actions()
@@ -40,15 +40,10 @@ class MonteCarloTreeSearchNode():
 
     def rollout(self):
         current_rollout_state = self.state
-        threshold_random = int((self.state._n ** 2) * 0.5)
 
         while not current_rollout_state.check_game_over()[0]:
             possible_moves = current_rollout_state.get_legal_actions()
             action = self.rollout_policy(possible_moves)
-            if len(possible_moves) < threshold_random:
-                casual_move = current_rollout_state.get_casual_move()
-                if casual_move:
-                    action = casual_move
             current_rollout_state = current_rollout_state.simulate_move(action)
                  
         return current_rollout_state.game_result(self.ai_mask)
@@ -63,7 +58,7 @@ class MonteCarloTreeSearchNode():
         return len(self._untried_actions) == 0
     
     def best_child(self, c_param=0.1):
-        choice_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) for c in self.children]
+        choice_weights = [(c.q() / c.n()) + c_param * np.sqrt((np.log(self.n()) / c.n())) for c in self.children]
         return self.children[np.argmax(choice_weights)]
     
     def rollout_policy(self, possible_moves):
@@ -78,7 +73,7 @@ class MonteCarloTreeSearchNode():
                 current_node = current_node.best_child()
         return current_node
 
-    def best_action(self, iteration=800, timeout=15):
+    def best_action(self, iteration=10000, timeout=8):
         num_simulation = iteration
     
         start = time.time()
@@ -88,5 +83,5 @@ class MonteCarloTreeSearchNode():
             v.backpropagate(reward)
             num_simulation -= 1
 
-        print(f"num simulation: {iteration - num_simulation}")
-        return self.best_child(c_param=1.4)
+        print(f"num simulation: {iteration - num_simulation},", end=" ")
+        return self.best_child(c_param=math.sqrt(2))
