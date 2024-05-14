@@ -17,7 +17,7 @@ def main():
         
         action = player.get_move(game, MOVE_TIMEOUT)
         game.move(action)
-        game.print_board()
+        TicTacToe.print_board(game)
 
     winner = game.check_game_over()[1]
     if winner > 0:

@@ -1,6 +1,5 @@
 import copy
 import numpy as np
-import random
 from collections import Counter
 
 class TicTacToe:
@@ -15,17 +14,17 @@ class TicTacToe:
         self.board = [[0 for i in range(n)] for j in range(n)]
         TicTacToe.win_cond = winning_condition
         self.current_turn = 1
-    
 
-    def print_board(self):
-        print(f"Player {-self.current_turn} turn")
-        for i in range(self._n):
+    @staticmethod
+    def print_board(game_state):
+        print(f"Player {-game_state.current_turn} turn")
+        for i in range(game_state._n):
             # Print the row with elements separated by vertical bars
-            row_str = " | ".join(str(self.board[i][j]) for j in range(self._n))
+            row_str = " | ".join(str(game_state.board[i][j]) for j in range(game_state._n))
             print(row_str)
             
             # Print a horizontal line between rows (except after the last row)
-            if i < self._n - 1:
+            if i < game_state._n - 1:
                 print("-" * len(row_str))
 
     def get_legal_actions(self):

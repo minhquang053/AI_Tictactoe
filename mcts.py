@@ -55,9 +55,9 @@ class MonteCarloTreeSearchNode():
             self.parent.backpropagate(result)
     
     def is_fully_expanded(self):
-        return len(self._untried_actions) == 0
+        return len(self.children) == 25 or len(self._untried_actions) == 0
     
-    def best_child(self, c_param=0.1):
+    def best_child(self, c_param=math.sqrt(2)):
         choice_weights = [(c.q() / c.n()) + c_param * np.sqrt((np.log(self.n()) / c.n())) for c in self.children]
         return self.children[np.argmax(choice_weights)]
     
@@ -71,6 +71,7 @@ class MonteCarloTreeSearchNode():
                 return current_node.expand()
             else:
                 current_node = current_node.best_child()
+
         return current_node
 
     def best_action(self, iteration=10000, timeout=8):
@@ -84,4 +85,4 @@ class MonteCarloTreeSearchNode():
             num_simulation -= 1
 
         print(f"num simulation: {iteration - num_simulation},", end=" ")
-        return self.best_child(c_param=math.sqrt(2))
+        return self.best_child()

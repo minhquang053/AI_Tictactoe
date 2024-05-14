@@ -3,7 +3,6 @@ with contextlib.redirect_stdout(None):
     import pygame
     import pygame_menu
 import sys
-import time
 from tictactoe import TicTacToe
 from player import AIPlayer, HumanPlayer
 

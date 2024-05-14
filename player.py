@@ -36,7 +36,7 @@ class HumanPlayer(Player):
 class AIPlayer(Player):
     def visual_test(self, game_state, num_sim):
         root = MonteCarloTreeSearchNode(state=game_state, ai_mask=self.player_mask)
-        selected_node = root.best_action(iteration=num_sim, timeout=10)
+        selected_node = root.best_action(iteration=num_sim, timeout=100)
         return root, selected_node.parent_action
 
     def get_move(self, game_state, move_timeout):
@@ -44,6 +44,8 @@ class AIPlayer(Player):
         start = time.time()
         move = game_state.get_casual_move()   
         if move:
+            while (time.time() - start) + 0.01 < move_timeout:
+                pass
             return move
 
         time_left = move_timeout - (time.time() - start) - 0.01
